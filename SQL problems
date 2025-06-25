@@ -1,5 +1,7 @@
- Problem:
-We have a table with employees and their salaries, however, some of the records are old and contain outdated salary information. Find the current salary of each employee assuming that salaries increase each year. Output their id, first name, last name, department ID, and current salary. Order your list by employee ID in ascending order.
+Problem 1:
+We have a table with employees and their salaries, however, some of the records are old and contain outdated
+salary information. Find the cuent salary of each employee assuming that salaries increase each year.
+Output their id, first name, last name, department ID, and current salary. Order your list by employee ID in ascending order.
 Query: 
 WITH ranked_salaries AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY salary DESC) AS rn
     FROM ms_employee_salary
@@ -8,6 +10,110 @@ SELECT id, first_name, last_name, salary, department_id
 FROM ranked_salaries
 WHERE rn = 1
 ORDER BY id ASC;
+Problem 2:
+Calculate the net change in the number of products launched by companies in 2020 compared to 2019. 
+Your output should include the company names and the net difference.
+(Net difference = Number of products launched in 2020 - The number launched in 2019.)
+query:
+SELECT 
+    company_name,
+    COALESCE(SUM(CASE WHEN year = 2020 THEN 1 ELSE 0 END), 0) - 
+    COALESCE(SUM(CASE WHEN year = 2019 THEN 1 ELSE 0 END), 0) AS net_difference
+FROM 
+    car_launches
+WHERE
+    year IN (2019, 2020)
+GROUP BY 
+    company_name
+ORDER BY 
+    company_name;
+
+Problem 3:
+Write a query that returns the user ID of all users that have created at least one ‘Refinance’ submission 
+and at least one ‘InSchool’ submission.
+
+Query:
+SELECT user_id
+FROM loans
+WHERE type IN ('Refinance', 'InSchool')
+GROUP BY user_id
+HAVING 
+    SUM(CASE WHEN type = 'Refinance' THEN 1 ELSE 0 END) > 0 AND 
+    SUM(CASE WHEN type = 'InSchool' THEN 1 ELSE 0 END) > 0;
+
+Problem 4:
+Write a query that returns the rate_type, loan_id, loan balance , and a column that shows with what 
+percentage the loan's balance contributes to the total balance among the loans of the same rate type. 
+Sort the final output by rate_type and loan_id. fields name - id	balance	interest_rate	rate_type	loan_id.  
+query;
+SELECT
+    rate_type,
+    loan_id,
+    balance,
+    ROUND((100.0 * balance / SUM(balance) OVER (PARTITION BY rate_type))::numeric, 2) AS percentage_of_total_balance
+FROM
+    submissions
+ORDER BY
+    rate_type,
+    loan_id;
+
+Problem 5:
+Write a SQL query to show each loan and its rate type. For each loan, create two new columns: 
+fixed and variable. If the loan has a fixed rate, put a 1 in the fixed column and a 0 in the variable 
+column. If the loan has a variable rate, do the opposite. fields name - id	balance	interest_rate	
+rate_type	loan_id. 
+SELECT
+    loan_id,
+    rate_type,
+    CASE WHEN rate_type = 'fixed' THEN 1 ELSE 0 END AS fixed,
+    CASE WHEN rate_type = 'variable' THEN 1 ELSE 0 END AS variable
+FROM
+    submissions
+ORDER BY
+    loan_id;
+problem 6:
+Find employees whose bonus is less than $150.
+Output the first name along with the corresponding bonus. fields name _ id	
+first_name	last_name	age	sex	employee_title	department	salary	target	bonus	email	city	address	manager_id
+Query:
+SELECT
+    first_name,
+    bonus
+FROM
+    employee
+WHERE
+    bonus < 150;
+
+Problem 7:
+Count the number of user events performed by MacBookPro users. Output the result along with the event name.
+Sort the result based on the event count in the descending order. fields name - 
+user_id	occurred_at	event_type	event_name	location	device
+query:
+SELECT
+    event_name,
+    COUNT(*) AS event_count
+FROM
+    playbook_events
+WHERE
+    device = 'MacBookPro'
+GROUP BY
+    event_name
+ORDER BY
+    event_count DESC;
+
+Problem 8:
+Return the total number of posts made on each calendar day of the month, aggregated across all months and years (ignoring user and year).  
+fields name post_id	poster	post_text	post_keywords	post_date
+Query:
+SELECT
+    EXTRACT(DAY FROM post_date) AS day_of_month,
+    COUNT(*) AS total_posts
+FROM
+    facebook_posts
+GROUP BY
+    day_of_month
+ORDER BY
+    day_of_month;
 
 
 
@@ -20,17 +126,7 @@ ORDER BY id ASC;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Completed 10 SQL problems on StrataScratch focusing on filtering, aggregation, and sorting.  
-Each problem is stored in a separate `.sql` file with explanations.  
+Completed 8 SQL problems on StrataScratch In these problems, I applied key SQL concepts including filtering,
+aggregation, window functions, conditional logic, and date/time extraction to efficiently analyze 
+and transform data. This hands-on practice strengthened my ability to write complex queries for 
+real-world business scenarios. I used PostgreSQL.
